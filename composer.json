@@ -1,0 +1,20 @@
+{
+    "name": "lanous/database",
+    "type": "library",
+    "keywords": ["pdo", "mysql", "database"],
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Lanous\\Database\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Azad",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=8.3.0"
+    }
+}
