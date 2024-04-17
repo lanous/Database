@@ -29,10 +29,10 @@ abstract class Table extends Config {
         $database = Config::getConfig("database","__connector");
         $result = $database-> Select ($this->table_name,$where,$columns);
         foreach($result as $key=>$data) {
-            array_walk ($data,function ($value,$column_name) use (&$result,$key) {
+            array_walk ($data,function ($value,$column_name) use (&$result,$key,$data) {
                 $result[$key][$column_name] = $this->__RETRIEVE($column_name,$value);
+                $this->__MakeParentColumn ($column_name,$data);
             });
-            $this->__MakeParent ($data);
         }
         return $result;
     }
@@ -70,40 +70,41 @@ abstract class Table extends Config {
     /**
      * Forign setting for data table
      */
-    private function __MakeParent ($data) {
-        if ($this->__parent != []) {
-            $table_class_ref = $this->__parent["class_name"];
+    private function __MakeParentColumn ($column_name,$data) {
+        if (isset($this->__parent[$column_name])) {
+            $table_class_ref = $this->__parent[$column_name]["class_name"];
             if(!isset($this->parent['class'])) {
-                $this->parent['class'] = $table_class_ref;
+                $this->parent[$column_name]['class'] = $table_class_ref;
             }
             $PrimaryKey_Parent = $table_class_ref->__PRIMARY();
             $PrimaryKey_this = $this->__PRIMARY();
             $PrimaryValue_this = $data[$PrimaryKey_this];
             $Where = new Where($PrimaryKey_Parent,"=",$PrimaryValue_this);
             $ParentData = $table_class_ref->Select($Where);
-            $this->parent['rows'][] = $ParentData[0];
+            $this->parent[$column_name]['rows'] = $ParentData[0];
         }
     }
     /**
      * Set foreign and reference to table (need primary key)
      */
-    final public function __FOREIGN(string $table_class) : string|bool {
+    final public function __FOREIGN(string $table_reference,string $column_reference=null,string $column=null) : string|bool {
         // Face: Foreign($table_name,$column_name,$table_ref,$column_ref)
         $this->__VALIDATION();
-        $table_class_ref = new $table_class();
+        $table_class_ref = new $table_reference();
         $table_name_ref = $table_class_ref->table_name;
         $Reflection = new \ReflectionClass($table_class_ref);
         $ParentClass = $Reflection?->getParentClass();
         $ParentClassName = $ParentClass->getName() ?? false;
         if($ParentClassName != __CLASS__) {
-            throw new Exceptions\Structure(Exceptions\Structure::DATABASE,"Your database class must extends from [".__CLASS__."]");
+            throw new Exceptions\Structure(Exceptions\Structure::DATABASE,"Your table reference class must extends from [".__CLASS__."]");
         }
-        $PrimaryKey_Parent = $table_class_ref->__PRIMARY();
-        $PrimaryKey_this = $this->__PRIMARY();
+        $column_reference = ($column_reference == null) ? $table_class_ref->__PRIMARY() : $column_reference;
+        $column_name = ($column == null) ? $this->__PRIMARY() : $column;
         $database = Config::getConfig("database","__connector");
-        $this->__parent = ["class_name"=>$table_class_ref,"column_name"=>$PrimaryKey_Parent];
-        return $database-> Foreign($this->table_name,$PrimaryKey_this,$table_name_ref,$PrimaryKey_Parent);
+        $this->__parent[$column_name] = ["class_name"=>$table_class_ref,"column_name"=>$column_reference];
+        return $database-> Foreign($this->table_name,$column_name,$table_name_ref,$column_reference);
     }
+
     /**
      * Get primary column name
      */ 
@@ -119,13 +120,13 @@ abstract class Table extends Config {
     /**
      * Insert|Update Handler
      */
-    public function __INSERT(string $column_name,mixed $value) : string {
+    public function __INSERT(string $column_name,mixed $value) : null|string {
         return $value;
     }
     /**
      * Select Handler
      */
-    public function __RETRIEVE(string $column_name,string $value) {
+    public function __RETRIEVE(string $column_name,null|string $value) {
         return $value;
     }
     /**
@@ -150,5 +151,8 @@ abstract class Table extends Config {
         $database = Config::getConfig("database","__connector");
         $data = $database-> TableExists ($this->table_name);
         return $data;
+    }
+    public function PrimaryWhere ($value) : Where {
+        return new Where($this->__PRIMARY(),"=",$value);
     }
 }
