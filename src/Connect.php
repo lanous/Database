@@ -27,4 +27,28 @@ class Connect extends Config {
             }
         }
     }
+    public function AutoMakeTables () {
+        $AllClass = get_declared_classes();
+        array_map(function ($class_name) {
+            $Reflection = new \ReflectionClass($class_name);
+            if($Reflection->isSubclassOf("\Lanous\Database\Abstracts\Table")) {
+                $table_class = new $class_name();
+                $table_class->__MAKE();
+            }
+        },$AllClass);
+    }
+    public function AutoConfigForiegns () {
+        $AllClass = get_declared_classes();
+        array_map(function ($class_name) {
+            $Reflection = new \ReflectionClass($class_name);
+            if($Reflection->isSubclassOf("\Lanous\Database\Abstracts\Table")) {
+                $table_class = new $class_name();
+                if(is_array($table_class->__references)) {
+                    foreach ($table_class->__references as $column_name=>$reference) {
+                        $table_class->__FOREIGN($reference['table_class'],$reference['column_name'],$column_name);
+                    }
+                }
+            }
+        },$AllClass);
+    }
 }

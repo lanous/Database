@@ -7,7 +7,7 @@ class Structure extends \Exception {
     public const TABLE = 888;
     public function __construct(int $code, string $detail = "") {
         $this->code = $code;
-        $this->message = $this->errorText($code)."\n".$detail;
+        $this->message = $this->errorText($code)."\n \n".$detail."\n \n";
     }
     private function errorText (int $code) : bool|string {
         if($code == self::CONFIG) {
