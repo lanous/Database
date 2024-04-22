@@ -46,7 +46,7 @@ class ReturnRow implements \ArrayAccess {
     public function ToArray () {
         return $this->rows;
     }
-    public function Paging(int $page,int $per_page) : array {
+    public function Paging(int $page,int $per_page) : array|bool {
         return array_chunk($this->rows,$per_page)[$page] ?? false;
     }
 
