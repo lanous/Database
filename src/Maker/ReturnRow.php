@@ -3,8 +3,10 @@ namespace Lanous\Database\Maker;
 class ReturnRow implements \ArrayAccess {
     private $rows;
     private $table_class;
+    public bool $is_have;
     public function __construct(array $rows,object $table_class) {
         $this->rows = $rows;
+        $this->is_have = (count($rows) > 0) ? true : false;
         $this->table_class = $table_class;
     }
     public function Last () : object|array {
@@ -43,6 +45,9 @@ class ReturnRow implements \ArrayAccess {
     }
     public function ToArray () {
         return $this->rows;
+    }
+    public function Paging(int $page,int $per_page) : array {
+        return array_chunk($this->rows,$per_page)[$page] ?? false;
     }
 
     public function offsetSet(mixed $offset, mixed $value): void {

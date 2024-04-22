@@ -63,7 +63,9 @@ abstract class Table extends Config {
     final public function Insert (array $insert_data) : bool|int {
         // Face: Insert (string $table_name,array $insert_data) : bool|int
         $this->__VALIDATION();
-        $insert_data = array_merge($insert_data,$this->__autofill);
+        if (is_array($this->__autofill)) {
+            $insert_data = array_merge($insert_data,$this->__autofill);
+        }
         array_walk($insert_data,function (&$column_value,$column_name) {
             $this->__EXCEPTION_COLUMN_NOTEXISTS ($column_name);
             $column_value = $this->__INSERT($column_name,$column_value);
