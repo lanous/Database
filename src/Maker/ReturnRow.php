@@ -3,10 +3,10 @@ namespace Lanous\Database\Maker;
 class ReturnRow implements \ArrayAccess {
     private $rows;
     private $table_class;
-    public bool $is_have;
+    public bool $is_empty;
     public function __construct(array $rows,object $table_class) {
         $this->rows = $rows;
-        $this->is_have = (count($rows) > 0) ? true : false;
+        $this->is_empty = (count($rows) > 0) ? false : true;
         $this->table_class = $table_class;
     }
     public function Last () : object|array {
