@@ -15,7 +15,7 @@ class Connect extends Config {
         parent::setConfig("database","__connector",new $database($host,$username,$password,$db_name));
     }
     public function AutoLoad (string $directory_name) {
-        $directores = glob($directory_name."\*");
+        $directores = glob($directory_name."/*");
         foreach ($directores as $DIR_FILE) {
             if (is_dir($DIR_FILE)) {
                 $this->AutoLoad ($DIR_FILE);

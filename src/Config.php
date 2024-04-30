@@ -18,4 +18,10 @@ class Config {
         }
         self::$config[$branch][$key] = $value;
     }
+    public static function editConfig (string $branch,string $key,mixed $value) {
+        if(!isset(self::$config[$branch][$key])) {
+            throw new Exceptions\Structure(Exceptions\Structure::CONFIG,"There is no data in this route - config -> ".$branch." -> ".$key);
+        }
+        self::$config[$branch][$key] = $value;
+    }
 }
