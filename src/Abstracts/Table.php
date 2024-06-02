@@ -26,7 +26,7 @@ abstract class Table extends Config {
     /**
      * Extract Rows
      */
-    final public function Select (Where $where=null,string $columns=null) : object|array {
+    final public function Select (Where $where=null,string $columns=null) : ReturnRow {
         // Face: Select (string $table_name,Where $where=null,string $columns=null) : array
         $this->__VALIDATION();
         $database = Config::getConfig("database","__connector");

@@ -22,6 +22,7 @@ class Connect extends Config {
             } else {
                 $fileExtension = pathinfo($DIR_FILE, PATHINFO_EXTENSION);
                 if ($fileExtension == 'php') {
+                    // echo $DIR_FILE." Loaded!".PHP_EOL;
                     include_once($DIR_FILE);
                 }
             }

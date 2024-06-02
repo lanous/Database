@@ -1,5 +1,6 @@
 <?php
 namespace Lanous\Database\Maker;
+use \Lanous\Database\Exceptions\ReturnRow as ReturnError;
 class ReturnRow implements \ArrayAccess {
     private $rows;
     private $table_class;
@@ -9,22 +10,28 @@ class ReturnRow implements \ArrayAccess {
         $this->is_empty = (count($rows) > 0) ? false : true;
         $this->table_class = $table_class;
     }
-    public function Last () : object|array {
+    public function Last () : ReturnRow {
+        if (!isset($this->rows[array_key_last($this->rows)])) {
+            throw new ReturnError(ReturnError::NO_DATA,json_encode($this->rows,128|256));
+        }
         return new ReturnRow($this->rows[array_key_last($this->rows)],$this->table_class);
     }
-    public function First () : object|array {
+    public function First () : ReturnRow {
+        if (!isset($this->rows[array_key_first($this->rows)])) {
+            throw new ReturnError(ReturnError::NO_DATA,json_encode($this->rows,128|256));
+        }
         return new ReturnRow($this->rows[array_key_first($this->rows)],$this->table_class);
     }
-    public function Find ($column_name,$column_value) : object|array {
+    public function Find ($column_name,$column_value) : ReturnRow {
         return new ReturnRow($this->rows[array_search($column_value,array_column($this->rows,$column_name))],$this->table_class);
     }
-    public function Filter (callable|null $callback) : object|array {
+    public function Filter (callable|null $callback) : ReturnRow {
         return new ReturnRow(array_filter($this->rows,$callback),$this->table_class);
     }
     public function Count() : int {
         return count($this->rows);
     }
-    public function Map3D(callable|null $callback) : object|array {
+    public function Map3D(callable|null $callback) : ReturnRow {
         $result = [];
         foreach ($this->rows as $row=>$values) {
             foreach($values as $key=>$value) {
@@ -33,17 +40,17 @@ class ReturnRow implements \ArrayAccess {
         }
         return new ReturnRow($result,$this->table_class);
     }
-    public function Map2D(callable|null $callback) : object|array  {
+    public function Map2D(callable|null $callback) : ReturnRow  {
         $result = [];
         foreach($this->rows as $key=>$value) {
             $result[$key] = $callback($key,$value) ?? $value;
         }
         return new ReturnRow($result,$this->table_class);
     }
-    public function Update(...$columns) {
+    public function Update(...$columns) : ReturnRow {
         return new ReturnRow($this->table_class->__UPDATE_FOR_ROWRETURN($this->rows,$columns),$this->table_class);
     }
-    public function ToArray () {
+    public function ToArray () : array {
         return $this->rows;
     }
     public function Paging(int $page,int $per_page) : array|bool {

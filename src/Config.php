@@ -24,4 +24,10 @@ class Config {
         }
         self::$config[$branch][$key] = $value;
     }
+    public static function GetBranch (string $branch) {
+        if(!isset(self::$config[$branch])) {
+            throw new Exceptions\Structure(Exceptions\Structure::CONFIG,"There is no data in this branch - config -> ".$branch);
+        }
+        return self::$config[$branch];
+    }
 }
